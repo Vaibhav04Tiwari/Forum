@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Community Forum - PandaInUniv</title>
+  <link rel="stylesheet" href="assets/css/forum.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="forum-header">
+    <div class="header-content">
+      <a href="https://www.pandainuniv.com" class="forum-logo">
+        <span class="logo-icon">🐼</span>
+        <span>PandaInUniv Forum</span>
+      </a>
+      <div class="header-right">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Search discussions..." id="search-input">
+          <button class="search-icon" id="search-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </button>
+        </div>
+        <button class="btn btn-primary" id="new-post-btn">
+          <span>+</span>
+          <span>New Post</span>
+        </button>
+        <button class="btn btn-outline" id="signin-btn">Sign In</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Filter Tabs -->
+      <div class="sidebar-card">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="hot">
+            <span class="tab-icon">🔥</span>
+            <span>Hot</span>
+          </button>
+          <button class="filter-tab" data-filter="new">
+            <span class="tab-icon">✨</span>
+            <span>New</span>
+          </button>
+          <button class="filter-tab" data-filter="top">
+            <span class="tab-icon">⭐</span>
+            <span>Top</span>
+          </button>
+          <button class="filter-tab" data-filter="trending">
+            <span class="tab-icon">📈</span>
+            <span>Trending</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">Topics</h3>
+        <ul class="category-list">
+          <li class="category-item" data-category="admissions">
+            <span class="category-icon">🎓</span>
+            <span class="category-name">PhD Admissions</span>
+            <span class="category-count">1.2K</span>
+          </li>
+          <li class="category-item" data-category="funding">
+            <span class="category-icon">💰</span>
+            <span class="category-name">Funding</span>
+            <span class="category-count">892</span>
+          </li>
+          <li class="category-item" data-category="research">
+            <span class="category-icon">🔬</span>
+            <span class="category-name">Research</span>
+            <span class="category-count">756</span>
+          </li>
+          <li class="category-item" data-category="advisor">
+            <span class="category-icon">👨‍🏫</span>
+            <span class="category-name">Advisors</span>
+            <span class="category-count">634</span>
+          </li>
+          <li class="category-item" data-category="career">
+            <span class="category-icon">🎯</span>
+            <span class="category-name">Career</span>
+            <span class="category-count">567</span>
+          </li>
+          <li class="category-item" data-category="data">
+            <span class="category-icon">📊</span>
+            <span class="category-name">Placement Data</span>
+            <span class="category-count">445</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Community Stats -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">Community</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">24.5K</div>
+            <div class="stat-label">Members</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">1.2K</div>
+            <div class="stat-label">Online</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Post Cards -->
+      <article class="post-card">
+        <div class="vote-section">
+          <button class="vote-btn upvote" aria-label="Upvote">▲</button>
+          <span class="vote-count">287</span>
+          <button class="vote-btn downvote" aria-label="Downvote">▼</button>
+        </div>
+        <div class="post-content">
+          <div class="post-header">
+            <span class="post-category admissions">Admissions</span>
+            <div class="post-meta">
+              <span class="post-author">u/phd_aspirant2024</span>
+              <span class="verified-badge">✓</span>
+              <span class="post-time">3h ago</span>
+            </div>
+          </div>
+          <h2 class="post-title">MIT vs Stanford CS PhD - Placement outcomes comparison</h2>
+          <p class="post-excerpt">
+            I've been admitted to both programs and trying to decide. Looking at placement data, both have excellent placement rates (~95% tenure track). Can anyone share insights on research culture, advisor availability, and industry connections?
+          </p>
+          <div class="post-tags">
+            <span class="tag">#ComputerScience</span>
+            <span class="tag">#MIT</span>
+            <span class="tag">#Stanford</span>
+          </div>
+          <div class="post-footer">
+            <button class="post-stat" data-action="comment">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>67</span>
+            </button>
+            <button class="post-stat" data-action="share">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              <span>Share</span>
+            </button>
+            <button class="post-stat" data-action="save">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="vote-section">
+          <button class="vote-btn upvote active" aria-label="Upvote">▲</button>
+          <span class="vote-count">423</span>
+          <button class="vote-btn downvote" aria-label="Downvote">▼</button>
+        </div>
+        <div class="post-content">
+          <div class="post-header">
+            <span class="post-category funding">Funding</span>
+            <div class="post-meta">
+              <span class="post-author">u/grad_student_life</span>
+              <span class="post-time">6h ago</span>
+            </div>
+          </div>
+          <h2 class="post-title">How I secured NSF Fellowship - Complete guide and tips</h2>
+          <p class="post-excerpt">
+            After 2 rejections, I finally got the NSF GRFP. Here's everything I learned: start early, focus on broader impacts, get feedback from past winners. The key is showing how your research benefits society, not just academic novelty...
+          </p>
+          <div class="post-tags">
+            <span class="tag">#NSF</span>
+            <span class="tag">#Funding</span>
+            <span class="tag">#Fellowship</span>
+          </div>
+          <div class="post-footer">
+            <button class="post-stat" data-action="comment">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>89</span>
+            </button>
+            <button class="post-stat" data-action="share">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              <span>Share</span>
+            </button>
+            <button class="post-stat" data-action="save">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="vote-section">
+          <button class="vote-btn upvote" aria-label="Upvote">▲</button>
+          <span class="vote-count">156</span>
+          <button class="vote-btn downvote" aria-label="Downvote">▼</button>
+        </div>
+        <div class="post-content">
+          <div class="post-header">
+            <span class="post-category research">Research</span>
+            <div class="post-meta">
+              <span class="post-author">u/year3phd</span>
+              <span class="verified-badge">✓</span>
+              <span class="post-time">1d ago</span>
+            </div>
+          </div>
+          <h2 class="post-title">Changing advisors in 3rd year - Success story and advice</h2>
+          <p class="post-excerpt">
+            I switched advisors after 3 years due to mismatch in research interests. It was scary but absolutely worth it. Here's what I learned about navigating the transition, dealing with department politics, and staying on track for graduation...
+          </p>
+          <div class="post-tags">
+            <span class="tag">#Advisor</span>
+            <span class="tag">#Research</span>
+            <span class="tag">#Advice</span>
+          </div>
+          <div class="post-footer">
+            <button class="post-stat" data-action="comment">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>234</span>
+            </button>
+            <button class="post-stat" data-action="share">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              <span>Share</span>
+            </button>
+            <button class="post-stat" data-action="save">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="vote-section">
+          <button class="vote-btn upvote" aria-label="Upvote">▲</button>
+          <span class="vote-count">98</span>
+          <button class="vote-btn downvote" aria-label="Downvote">▼</button>
+        </div>
+        <div class="post-content">
+          <div class="post-header">
+            <span class="post-category career">Career</span>
+            <div class="post-meta">
+              <span class="post-author">u/postdoc_journey</span>
+              <span class="post-time">12h ago</span>
+            </div>
+          </div>
+          <h2 class="post-title">Industry vs Academia: 5 years post-PhD perspective</h2>
+          <p class="post-excerpt">
+            I chose industry after my PhD in 2019 (went to Google Research). Now comparing my trajectory with peers who stayed in academia. Thoughts on salary, work-life balance, impact, and whether I'd do it differently...
+          </p>
+          <div class="post-tags">
+            <span class="tag">#Industry</span>
+            <span class="tag">#Academia</span>
+            <span class="tag">#Career</span>
+          </div>
+          <div class="post-footer">
+            <button class="post-stat" data-action="comment">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>156</span>
+            </button>
+            <button class="post-stat" data-action="share">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              <span>Share</span>
+            </button>
+            <button class="post-stat" data-action="save">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <script src="assets/js/forum.js"></script>
+</body>
+</html>
