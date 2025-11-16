@@ -1,15 +1,73 @@
-// forum.js - Complete Forum with AWS Cognito & MongoDB Integration
+// forum.js - Complete Forum with AWS Cognito Integration (FIXED)
 
-// Configuration - UPDATE THESE WITH YOUR VALUES
+// Configuration
 const CONFIG = {
   cognitoDomain: 'us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
   clientId: '52g34e69k6uu3iddbvpdf8c0ab',
-  redirectUri: window.location.origin + '/index.html',
-  apiBaseUrl: 'http://localhost:3000/api' // Change to your AWS backend URL when deployed
+  // FIXED: Use the correct redirect URI
+  redirectUri: window.location.origin + '/',
+  logoutUri: window.location.origin + '/'
 };
 
+console.log('🔧 Forum Config:', CONFIG);
+console.log('📍 Current URL:', window.location.href);
+
 // State management
-let allPosts = [];
+let allPosts = [
+  {
+    id: 1,
+    category: 'admissions',
+    author: 'phd_aspirant',
+    verified: true,
+    time: '3h ago',
+    title: 'MIT vs Stanford CS PhD - Which one should I choose?',
+    content: 'Got admits from both. MIT has better lab resources but Stanford has warmer weather. Looking at placement data, both seem similar. Any advice?',
+    tags: ['CS', 'MIT', 'Stanford'],
+    votes: 287,
+    comments: 67,
+    userVote: 0
+  },
+  {
+    id: 2,
+    category: 'funding',
+    author: 'grad_life',
+    verified: false,
+    time: '6h ago',
+    title: 'NSF Fellowship tips - What worked for me',
+    content: 'Finally got NSF after 2 tries. Main thing: focus on broader impacts. Show how your work helps society. Happy to answer questions.',
+    tags: ['NSF', 'Funding'],
+    votes: 423,
+    comments: 89,
+    userVote: 0
+  },
+  {
+    id: 3,
+    category: 'research',
+    author: 'year3phd',
+    verified: true,
+    time: '1d ago',
+    title: 'Switched advisors in 3rd year - Here is what happened',
+    content: 'Research interests changed completely. Was nervous but it worked out. Department was supportive. Feel free to ask anything.',
+    tags: ['Advisor', 'Research'],
+    votes: 156,
+    comments: 234,
+    userVote: 0
+  },
+  {
+    id: 4,
+    category: 'career',
+    author: 'tech_researcher',
+    verified: false,
+    time: '12h ago',
+    title: 'Industry vs Academia after PhD - My experience',
+    content: 'Been at Google Research for 3 years. Comparing with friends in academia. Both paths have pros and cons. AMA.',
+    tags: ['Industry', 'Career'],
+    votes: 98,
+    comments: 156,
+    userVote: 0
+  }
+];
+
 let postTags = [];
 let sortType = 'hot';
 let filterTopic = 'all';
@@ -20,60 +78,85 @@ let authToken = null;
 // ==================== Authentication Functions ====================
 
 function getAuthTokenFromUrl() {
+  // Check URL hash for token (OAuth redirect)
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
-  return params.get('id_token');
+  const token = params.get('id_token') || params.get('access_token');
+  
+  console.log('🔍 Checking URL for token:', token ? 'Found' : 'Not found');
+  return token;
 }
 
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
     return JSON.parse(jsonPayload);
   } catch (e) {
-    console.error('Error parsing JWT:', e);
+    console.error('❌ Error parsing JWT:', e);
     return null;
   }
 }
 
 function initAuth() {
+  console.log('🔐 Initializing authentication...');
+  
   // Check if we have a token in URL (returned from Cognito)
   const token = getAuthTokenFromUrl();
   
   if (token) {
+    console.log('✅ Token found in URL');
     authToken = token;
     localStorage.setItem('authToken', token);
     currentUser = parseJwt(token);
+    console.log('👤 User info:', currentUser);
+    
+    // Clean URL (remove hash)
     window.history.replaceState({}, document.title, window.location.pathname);
     updateUIForAuthState();
-    loadPosts();
   } else {
+    // Check for stored token
     const storedToken = localStorage.getItem('authToken');
     if (storedToken) {
       const decoded = parseJwt(storedToken);
+      // Check if token is still valid
       if (decoded && decoded.exp * 1000 > Date.now()) {
+        console.log('✅ Valid token found in storage');
         authToken = storedToken;
         currentUser = decoded;
         updateUIForAuthState();
       } else {
+        console.log('⚠️ Token expired, removing...');
         localStorage.removeItem('authToken');
       }
+    } else {
+      console.log('ℹ️ No token found, user not signed in');
     }
   }
 }
 
 function updateUIForAuthState() {
   const signInBtn = document.getElementById('signInBtn');
+  const userIcon = document.querySelector('.user-icon');
   
   if (currentUser) {
-    const userName = currentUser.name || currentUser.email?.split('@')[0] || 'User';
+    // Get user name from token
+    const userName = currentUser.name || 
+                     currentUser.email?.split('@')[0] || 
+                     currentUser['cognito:username'] || 
+                     'User';
+    
+    console.log('👤 Updating UI for user:', userName);
+    
     signInBtn.textContent = userName;
     signInBtn.onclick = showUserMenu;
     
-    const userIcon = document.querySelector('.user-icon');
     if (userIcon) {
       userIcon.textContent = userName.charAt(0).toUpperCase();
     }
@@ -84,6 +167,7 @@ function updateUIForAuthState() {
 }
 
 function signInWithGoogle() {
+  // Build the Cognito authorization URL
   const authUrl = `https://${CONFIG.cognitoDomain}/oauth2/authorize?` +
     `client_id=${CONFIG.clientId}&` +
     `response_type=token&` +
@@ -91,19 +175,23 @@ function signInWithGoogle() {
     `redirect_uri=${encodeURIComponent(CONFIG.redirectUri)}&` +
     `identity_provider=Google`;
   
-  console.log('Redirecting to:', authUrl);
+  console.log('🔗 Redirecting to Cognito:', authUrl);
   window.location.href = authUrl;
 }
 
 function signOut() {
+  console.log('🚪 Signing out...');
+  
   authToken = null;
   currentUser = null;
   localStorage.removeItem('authToken');
   
+  // Redirect to Cognito logout
   const logoutUrl = `https://${CONFIG.cognitoDomain}/logout?` +
     `client_id=${CONFIG.clientId}&` +
-    `logout_uri=${encodeURIComponent(CONFIG.redirectUri)}`;
+    `logout_uri=${encodeURIComponent(CONFIG.logoutUri)}`;
   
+  console.log('🔗 Redirecting to logout:', logoutUrl);
   window.location.href = logoutUrl;
 }
 
@@ -114,98 +202,46 @@ function showUserMenu() {
   }
 }
 
-// ==================== API Functions ====================
-
-async function apiRequest(endpoint, options = {}) {
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers
-  };
-  
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
-  
-  try {
-    console.log(`API Request: ${CONFIG.apiBaseUrl}${endpoint}`);
-    const response = await fetch(`${CONFIG.apiBaseUrl}${endpoint}`, {
-      ...options,
-      headers
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Request failed');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-}
-
-async function loadPosts() {
-  try {
-    const queryParams = new URLSearchParams();
-    if (filterTopic !== 'all') queryParams.append('category', filterTopic);
-    if (searchTerm) queryParams.append('search', searchTerm);
-    queryParams.append('sort', sortType);
-    
-    const posts = await apiRequest(`/posts?${queryParams.toString()}`);
-    allPosts = posts.map(post => ({
-      id: post._id,
-      category: post.category || 'general',
-      author: post.userName || 'Anonymous',
-      verified: post.verified || false,
-      time: formatTime(post.createdAt),
-      title: post.title,
-      content: post.content,
-      tags: post.tags || [],
-      votes: post.votes || 0,
-      comments: post.comments || 0,
-      userVote: post.userVote || 0
-    }));
-    
-    displayPosts();
-  } catch (error) {
-    console.error('Error loading posts:', error);
-    allPosts = [];
-    displayPosts();
-  }
-}
-
-function formatTime(dateString) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diff = now - date;
-  
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  
-  return date.toLocaleDateString();
-}
+// ==================== Post Display Functions ====================
 
 function displayPosts() {
   const area = document.getElementById('postsArea');
-  
-  if (allPosts.length === 0) {
+  let filtered = [...allPosts];
+
+  // Filter by topic
+  if (filterTopic !== 'all') {
+    filtered = filtered.filter(p => p.category === filterTopic);
+  }
+
+  // Filter by search
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(p => 
+      p.title.toLowerCase().includes(term) ||
+      p.content.toLowerCase().includes(term) ||
+      p.tags.some(t => t.toLowerCase().includes(term))
+    );
+  }
+
+  // Sort posts
+  if (sortType === 'top') {
+    filtered.sort((a, b) => b.votes - a.votes);
+  } else if (sortType === 'new') {
+    filtered.sort((a, b) => b.id - a.id);
+  }
+
+  // Display results
+  if (filtered.length === 0) {
     area.innerHTML = '<div class="no-results">No posts found. Be the first to create one!</div>';
     return;
   }
 
-  area.innerHTML = allPosts.map(post => `
+  area.innerHTML = filtered.map(post => `
     <div class="post">
       <div class="vote-section">
-        <button class="vote-btn up ${post.userVote === 1 ? 'active' : ''}" onclick="handleVote('${post.id}', 1)">▲</button>
+        <button class="vote-btn up ${post.userVote === 1 ? 'active' : ''}" onclick="handleVote(${post.id}, 1)">▲</button>
         <div class="vote-score">${post.votes}</div>
-        <button class="vote-btn down ${post.userVote === -1 ? 'active' : ''}" onclick="handleVote('${post.id}', -1)">▼</button>
+        <button class="vote-btn down ${post.userVote === -1 ? 'active' : ''}" onclick="handleVote(${post.id}, -1)">▼</button>
       </div>
       <div class="post-main">
         <div class="post-header">
@@ -238,33 +274,28 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-async function handleVote(postId, dir) {
+function handleVote(postId, dir) {
   if (!authToken) {
     alert('Please sign in to vote');
     signInWithGoogle();
     return;
   }
-  
-  try {
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
-    
-    let newVote = dir;
-    if (post.userVote === dir) {
-      newVote = 0;
+
+  const post = allPosts.find(p => p.id === postId);
+  if (!post) return;
+
+  if (post.userVote === dir) {
+    post.votes -= dir;
+    post.userVote = 0;
+  } else {
+    if (post.userVote !== 0) {
+      post.votes -= post.userVote;
     }
-    
-    const result = await apiRequest(`/posts/${postId}/vote`, {
-      method: 'POST',
-      body: JSON.stringify({ vote: newVote })
-    });
-    
-    post.votes = result.votes;
-    post.userVote = result.userVote;
-    displayPosts();
-  } catch (error) {
-    alert('Error voting: ' + error.message);
+    post.votes += dir;
+    post.userVote = dir;
   }
+
+  displayPosts();
 }
 
 // ==================== Modal Functions ====================
@@ -304,10 +335,10 @@ function deleteTag(idx) {
 function searchByTag(tag) {
   searchTerm = tag;
   document.getElementById('searchInput').value = tag;
-  loadPosts();
+  displayPosts();
 }
 
-async function submitPost() {
+function submitPost() {
   const title = document.getElementById('titleInput').value.trim();
   const content = document.getElementById('contentInput').value.trim();
   const category = document.getElementById('topicSelect').value;
@@ -322,36 +353,44 @@ async function submitPost() {
     return;
   }
 
-  try {
-    await apiRequest('/posts', {
-      method: 'POST',
-      body: JSON.stringify({
-        category,
-        title,
-        content,
-        tags: postTags
-      })
-    });
+  // Get username from token
+  const userName = currentUser.name || 
+                   currentUser.email?.split('@')[0] || 
+                   currentUser['cognito:username'] || 
+                   'User';
 
-    closeModal();
-    alert('Your post has been published successfully!');
-    loadPosts();
-  } catch (error) {
-    alert('Error creating post: ' + error.message);
-  }
+  // Create new post
+  const newPost = {
+    id: allPosts.length + 1,
+    category: category,
+    author: userName,
+    verified: false,
+    time: 'just now',
+    title: title,
+    content: content,
+    tags: [...postTags],
+    votes: 1,
+    comments: 0,
+    userVote: 1
+  };
+
+  allPosts.unshift(newPost);
+  displayPosts();
+  closeModal();
+  alert('Your post has been published successfully!');
 }
 
 // ==================== Initialize ====================
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Forum initialized');
-  console.log('Config:', CONFIG);
+  console.log('📋 Config:', CONFIG);
   
   // Initialize authentication
   initAuth();
   
-  // Load posts
-  loadPosts();
+  // Display posts
+  displayPosts();
   
   // Modal controls
   document.getElementById('openModalBtn').addEventListener('click', openModal);
@@ -372,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       sortType = this.dataset.sort;
-      loadPosts();
+      displayPosts();
     });
   });
 
@@ -382,25 +421,21 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('active'));
       this.classList.add('active');
       filterTopic = this.dataset.topic;
-      loadPosts();
+      displayPosts();
     });
   });
 
   // Search input
   const searchInput = document.getElementById('searchInput');
-  let searchTimeout;
   searchInput.addEventListener('input', (e) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      searchTerm = e.target.value.trim();
-      loadPosts();
-    }, 500);
+    searchTerm = e.target.value.trim();
+    displayPosts();
   });
 
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       searchTerm = e.target.value.trim();
-      loadPosts();
+      displayPosts();
     }
   });
 
