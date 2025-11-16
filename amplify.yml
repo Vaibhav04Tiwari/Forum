@@ -3,7 +3,7 @@ frontend:
   phases:
     build:
       commands:
-        - echo "No build required - static HTML site"
+        - echo "Building frontend"
   artifacts:
     baseDirectory: /
     files:
