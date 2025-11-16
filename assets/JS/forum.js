@@ -1,11 +1,11 @@
-// forum.js - Updated with AWS Cognito and Backend API Integration
+// forum.js - Complete Forum with AWS Cognito & MongoDB Integration
 
 // Configuration - UPDATE THESE WITH YOUR VALUES
 const CONFIG = {
   cognitoDomain: 'us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
   clientId: '52g34e69k6uu3iddbvpdf8c0ab',
   redirectUri: window.location.origin + '/index.html',
-  apiBaseUrl: 'http://localhost:3000/api'
+  apiBaseUrl: 'http://localhost:3000/api' // Change to your AWS backend URL when deployed
 };
 
 // State management
@@ -17,7 +17,8 @@ let searchTerm = '';
 let currentUser = null;
 let authToken = null;
 
-// Authentication Functions
+// ==================== Authentication Functions ====================
+
 function getAuthTokenFromUrl() {
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
@@ -33,6 +34,7 @@ function parseJwt(token) {
     ).join(''));
     return JSON.parse(jsonPayload);
   } catch (e) {
+    console.error('Error parsing JWT:', e);
     return null;
   }
 }
@@ -44,20 +46,13 @@ function initAuth() {
   if (token) {
     authToken = token;
     localStorage.setItem('authToken', token);
-    
-    // Parse user info from token
     currentUser = parseJwt(token);
-    
-    // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
-    
     updateUIForAuthState();
     loadPosts();
   } else {
-    // Check if token exists in localStorage
     const storedToken = localStorage.getItem('authToken');
     if (storedToken) {
-      // Verify token is still valid
       const decoded = parseJwt(storedToken);
       if (decoded && decoded.exp * 1000 > Date.now()) {
         authToken = storedToken;
@@ -78,7 +73,6 @@ function updateUIForAuthState() {
     signInBtn.textContent = userName;
     signInBtn.onclick = showUserMenu;
     
-    // Update user icon
     const userIcon = document.querySelector('.user-icon');
     if (userIcon) {
       userIcon.textContent = userName.charAt(0).toUpperCase();
@@ -97,6 +91,7 @@ function signInWithGoogle() {
     `redirect_uri=${encodeURIComponent(CONFIG.redirectUri)}&` +
     `identity_provider=Google`;
   
+  console.log('Redirecting to:', authUrl);
   window.location.href = authUrl;
 }
 
@@ -119,7 +114,8 @@ function showUserMenu() {
   }
 }
 
-// API Functions
+// ==================== API Functions ====================
+
 async function apiRequest(endpoint, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
@@ -131,6 +127,7 @@ async function apiRequest(endpoint, options = {}) {
   }
   
   try {
+    console.log(`API Request: ${CONFIG.apiBaseUrl}${endpoint}`);
     const response = await fetch(`${CONFIG.apiBaseUrl}${endpoint}`, {
       ...options,
       headers
@@ -158,22 +155,21 @@ async function loadPosts() {
     const posts = await apiRequest(`/posts?${queryParams.toString()}`);
     allPosts = posts.map(post => ({
       id: post._id,
-      category: post.category,
-      author: post.userName,
-      verified: post.verified,
+      category: post.category || 'general',
+      author: post.userName || 'Anonymous',
+      verified: post.verified || false,
       time: formatTime(post.createdAt),
       title: post.title,
       content: post.content,
       tags: post.tags || [],
-      votes: post.votes,
-      comments: post.comments,
+      votes: post.votes || 0,
+      comments: post.comments || 0,
       userVote: post.userVote || 0
     }));
     
     displayPosts();
   } catch (error) {
     console.error('Error loading posts:', error);
-    // Fall back to empty array
     allPosts = [];
     displayPosts();
   }
@@ -214,7 +210,7 @@ function displayPosts() {
       <div class="post-main">
         <div class="post-header">
           <span class="topic-badge ${post.category}">${post.category}</span>
-          <span class="author-name">u/${post.author}</span>
+          <span class="author-name">u/${escapeHtml(post.author)}</span>
           ${post.verified ? '<span class="verified-icon">✓</span>' : ''}
           <span>•</span>
           <span>${post.time}</span>
@@ -255,7 +251,7 @@ async function handleVote(postId, dir) {
     
     let newVote = dir;
     if (post.userVote === dir) {
-      newVote = 0; // Remove vote
+      newVote = 0;
     }
     
     const result = await apiRequest(`/posts/${postId}/vote`, {
@@ -270,6 +266,8 @@ async function handleVote(postId, dir) {
     alert('Error voting: ' + error.message);
   }
 }
+
+// ==================== Modal Functions ====================
 
 function openModal() {
   if (!authToken) {
@@ -343,12 +341,16 @@ async function submitPost() {
   }
 }
 
-// Initialize when DOM is ready
+// ==================== Initialize ====================
+
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Forum initialized');
+  console.log('Config:', CONFIG);
+  
   // Initialize authentication
   initAuth();
   
-  // Load posts (will work with or without auth)
+  // Load posts
   loadPosts();
   
   // Modal controls
