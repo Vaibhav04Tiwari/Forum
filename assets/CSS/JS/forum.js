@@ -2,7 +2,7 @@
 
 // Configuration - UPDATE THESE WITH YOUR VALUES
 const CONFIG = {
-  cognitoDomain: 'https://us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
+  cognitoDomain: 'us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
   clientId: '52g34e69k6uu3iddbvpdf8c0ab',
   redirectUri: window.location.origin + '/index.html',
   apiBaseUrl: 'http://localhost:3000/api'
