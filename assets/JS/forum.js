@@ -3,8 +3,8 @@
 const CONFIG = {
   cognitoDomain: 'us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
   clientId: '52g34e69k6uu3iddbvpdf8c0ab',
-  redirectUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',  // ← Fixed typo
-  logoutUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',    // ← Fixed typo
+  redirectUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',  // ← FIXED: dwcsnstq (not dwcnsnstg)
+  logoutUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',    // ← FIXED: dwcsnstq (not dwcnsnstg)
   useSimpleAuth: false
 };
 
