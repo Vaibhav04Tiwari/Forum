@@ -1,10 +1,11 @@
 // Configuration
+// Configuration
 const CONFIG = {
   cognitoDomain: 'us-east-1e2dhvuiye.auth.us-east-1.amazoncognito.com',
   clientId: '52g34e69k6uu3iddbvpdf8c0ab',
-  redirectUri: 'https://main.dwcnsnstg7qh1.amplifyapp.com/index.html',
-  logoutUri: 'https://main.dwcnsnstg7qh1.amplifyapp.com/index.html',
-  useSimpleAuth: false  // Set to true for testing without Google OAuth
+  redirectUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',  // ← Fixed typo
+  logoutUri: 'https://main.dwcsnstq7qh1.amplifyapp.com/index.html',    // ← Fixed typo
+  useSimpleAuth: false
 };
 
 console.log('🔧 Forum Config:', CONFIG);
